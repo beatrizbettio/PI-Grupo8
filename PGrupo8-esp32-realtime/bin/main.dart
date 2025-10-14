@@ -8,7 +8,9 @@ import 'package:esp32_realtime/leitura_sensor.dart';
 void main() async {
 print('\n---- Console de Monitoramento e Controle de Motores e Esteiras Transportadoras do ESP32 ----');
 
+  // Cria uma instância do serviço de autenticação.
   AuthService authService = AuthService();
+  // Chama o método para autenticar e aguarda o token.
   String? token = await authService.autenticarAnonimamente();
 
   if (token == null) {
@@ -16,6 +18,7 @@ print('\n---- Console de Monitoramento e Controle de Motores e Esteiras Transpor
     return;
   }
 
+  // Cria uma instância do serviço do Firebase, passando o token obtido.
   FirebaseService firebase = FirebaseService(token);
 
   while(true){
@@ -29,16 +32,18 @@ print('\n---- Console de Monitoramento e Controle de Motores e Esteiras Transpor
 
     switch(opcao){
       case '1':
-        LeituraSensor? leitura = await firebase.lerDadosRaiz();
-        if (leitura != null) {
+        List<LeituraSensor> leituras = await firebase.lerLeituras();
+        if (leituras.isNotEmpty) {
+          for (var leitura in leituras) {
             print(leitura);
+          }
         } else {
-          print('❌ Dados não encontrados ou inválidos.');
+          print('❌ Nenhuma leitura encontrada ou dados inválidos.');
         }
-        break;     
+        break;   
        
       case '2':
-        //Chama o método para enviar o comando ao Firebase
+        //Chama o método para enviar o comando ao Firebase.
         await firebase.enviarComandoGiroMotor();  
         break;
 

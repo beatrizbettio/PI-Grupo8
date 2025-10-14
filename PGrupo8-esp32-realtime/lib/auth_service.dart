@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 class AuthService {
   final String apiKey = 'AIzaSyCbnVKmYqTEqh8aiVnFuHeifrxOcM4T-mU';
 
+  // Método assíncrono para autenticar o usuário anonimamente.
   Future<String?> autenticarAnonimamente() async {
     final url = Uri.parse(
         'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$apiKey');
