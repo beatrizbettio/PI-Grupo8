@@ -14,7 +14,7 @@ class AuthService {
       final data = jsonDecode(response.body);
       return data['idToken'];
     } else {
-      print('Erro na autenticação: ${response.statusCode}');
+      print('❌ Erro na autenticação: ${response.statusCode}');
       return null;
     }
   }
