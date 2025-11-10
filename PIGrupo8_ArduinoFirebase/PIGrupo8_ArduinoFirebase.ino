@@ -10,8 +10,8 @@
 
 // Configurações Wi-Fi
 // Rede para conexão (STA - cliente)
-const char* WIFI_SSID = "";                // Nome da rede Wi-Fi
-const char* WIFI_PASSWORD = "";         // Senha da rede Wi-Fi
+const char* WIFI_SSID = "Angela";                // Nome da rede Wi-Fi
+const char* WIFI_PASSWORD = "bibinha14";         // Senha da rede Wi-Fi
 
 // Rede do Access Point (AP - criado pelo ESP32)
 const char* AP_SSID = "ESP32-PI";      // Nome da rede Wi-Fi criada pelo ESP32 
@@ -192,11 +192,11 @@ void loop() {
     }
 
     // Envio para o Firebase
-    // Envia a temperatura como uma leitura completa
-    enviarLeituraParaFirebase(temperatura, "Sensor de Temperatura DHT11", "°C", 101);
+    // Envia a temperatura como uma leitura completa, para o sensor 1
+    enviarLeituraParaFirebase(temperatura, "Sensor de Temperatura DHT11", "°C", 1);
 
-    // Envia o RPM como outra leitura completa
-    enviarLeituraParaFirebase(rpm, "Sensor de Velocidade KY-025", "RPM", 102);
+    // Envia o RPM como outra leitura completa, para o sensor 2
+    enviarLeituraParaFirebase(rpm, "Sensor de Velocidade KY-025", "RPM", 2);
   }
   
   // Leitura do estado do botão para controle manual do motor
