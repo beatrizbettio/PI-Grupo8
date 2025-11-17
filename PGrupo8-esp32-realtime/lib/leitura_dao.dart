@@ -9,6 +9,34 @@ class LeituraDao {
   final DatabaseConnection db;
   LeituraDao(this.db);
 
+  // Inserir leitura real do Firebase.
+  Future<void> inserirLeitura(LeituraSensor leitura) async {
+    final conn = db.connection;
+    try {
+      if (conn != null) {
+        await conn.query(
+          'INSERT INTO leitura (data, valor, alerta, descricaoAlerta, sensor_idsensor) VALUES (?, ?, ?, ?, ?)',
+          [
+            leitura.data.toUtc(), // Converte para UTC.
+            leitura.valor,
+            leitura.alerta,
+            leitura.descricaoAlerta,
+            leitura.sensor.idsensor // Pega o ID do sensor aninhado.
+          ]
+        );
+      } else {
+        print('Conexão inativa.');
+        return;
+      }
+    } catch (e) {
+      if (e.toString().contains('a foreign key constraint fails')) {
+         print('Erro de Chave Estrangeira: O sensor_idsensor ${leitura.sensor.idsensor} não existe no MySQL.');
+      } else {
+        print('Erro ao inserir leitura no MySQL: $e');
+      }
+    }
+  }
+
   // Listar Leitura (SELECT com JOINs).
   Future<List<LeituraSensor>> listarLeitura({int limite = 10}) async {
     final conn = db.connection;

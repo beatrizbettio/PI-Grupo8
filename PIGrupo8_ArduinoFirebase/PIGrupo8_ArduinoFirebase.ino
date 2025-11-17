@@ -10,8 +10,8 @@
 
 // Configurações Wi-Fi
 // Rede para conexão (STA - cliente)
-const char* WIFI_SSID = "Angela";                // Nome da rede Wi-Fi
-const char* WIFI_PASSWORD = "bibinha14";         // Senha da rede Wi-Fi
+const char* WIFI_SSID = "";                // Nome da rede Wi-Fi
+const char* WIFI_PASSWORD = "";         // Senha da rede Wi-Fi
 
 // Rede do Access Point (AP - criado pelo ESP32)
 const char* AP_SSID = "ESP32-PI";      // Nome da rede Wi-Fi criada pelo ESP32 
@@ -63,13 +63,13 @@ unsigned long lastSensorReadTime = 0;     // Armazena o tempo da última leitura
 unsigned long sensorReadInterval = 15000; // Intervalo de 15 segundos
 
 // Assinatura dos procedimentos
-void IRAM_ATTR handlePulse();                                                                       // Procedimento para contar pulsos do sensor (interrupção)
-void handleRoot();                                                                                  // Procedimento para tratar página raiz "/"
-void handleGira();                                                                                  // Procedimento para tratar ação de girar motor via web
-void streamCallback(FirebaseStream data);                                                           // Procedimento chamado quando chega um dado do Firebase (comando do motor)
-void streamTimeoutCallback(bool timeout);                                                           // Procedimento chamado se o stream do Firebase expirar
-void enviarLeituraParaFirebase(float valor, String tipoSensor, String unidadeSensor, int idSensor); // Procedimento para enviar uma leitura completa para o Firebase
-void girarMotorFirebase();                                                                          // Procedimento dedicado para o comando do Firebase
+void IRAM_ATTR handlePulse();                                                                                      // Procedimento para contar pulsos do sensor (interrupção)
+void handleRoot();                                                                                                 // Procedimento para tratar página raiz "/"
+void handleGira();                                                                                                 // Procedimento para tratar ação de girar motor via web
+void streamCallback(FirebaseStream data);                                                                          // Procedimento chamado quando chega um dado do Firebase (comando do motor)
+void streamTimeoutCallback(bool timeout);                                                                          // Procedimento chamado se o stream do Firebase expirar
+void enviarLeituraParaFirebase(float valor, String tipoSensor, String unidadeSensor, int idSensor, int leituraID); // Procedimento para enviar uma leitura completa para o Firebase
+void girarMotorFirebase();                                                                                         // Procedimento dedicado para o comando do Firebase
 
 
 void setup() {
@@ -192,11 +192,14 @@ void loop() {
     }
 
     // Envio para o Firebase
+    // Pega o timestamp (em segundos)
+    time_t leituraTimestamp = time(nullptr);
+
     // Envia a temperatura como uma leitura completa, para o sensor 1
-    enviarLeituraParaFirebase(temperatura, "Sensor de Temperatura DHT11", "°C", 1);
+    enviarLeituraParaFirebase(temperatura, "Sensor de Temperatura DHT11", "°C", 1, (int)leituraTimestamp);
 
     // Envia o RPM como outra leitura completa, para o sensor 2
-    enviarLeituraParaFirebase(rpm, "Sensor de Velocidade KY-025", "RPM", 2);
+    enviarLeituraParaFirebase(rpm, "Sensor de Velocidade KY-025", "RPM", 2, (int)leituraTimestamp + 1);
   }
   
   // Leitura do estado do botão para controle manual do motor
@@ -223,7 +226,7 @@ void loop() {
 }
 
 // Procedimento para enviar uma leitura completa para o Firebase
-void enviarLeituraParaFirebase(float valor, String tipoSensor, String unidadeSensor, int idSensor) {
+void enviarLeituraParaFirebase(float valor, String tipoSensor, String unidadeSensor, int idSensor, int leituraID) {
   
   // Cria um objeto JSON para construir a estrutura de dados
   FirebaseJson json;
@@ -243,7 +246,7 @@ void enviarLeituraParaFirebase(float valor, String tipoSensor, String unidadeSen
   }
 
   // Preenche o objeto JSON com todos os dados, incluindo os aninhados.
-  json.set("idleitura", (int)now); // Usa o timestamp como ID único simples
+  json.set("idleitura", leituraID); // Usa o timestamp como ID único simples
   json.set("data", dataISO);
   json.set("valor", valor);
   json.set("alerta", emAlerta); 

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:esp32_realtime/auth_service.dart';
 import 'package:esp32_realtime/firebase_service.dart';
+import 'package:esp32_realtime/etl_service.dart';
 import 'package:esp32_realtime/database_config.dart';
 import 'package:esp32_realtime/database_connection.dart';
 import 'package:esp32_realtime/empresa_dao.dart';
@@ -67,6 +68,17 @@ void main() async {
   final comandoDao = ComandoDao(db);
   final usuarioDao = UsuarioDao(db);
 
+  // Sincronização das Leituras reais do Firebase
+  print('\n============ [ETAPA DE SINCRONIZAÇÃO AUTOMÁTICA] ============');
+  if (firebaseService != null) {
+    // Chama a função de ETL
+    await sincronizarFirebaseComMySQL(firebaseService, leituraDao);
+  } else {
+    print('[SINC] Serviço Firebase indisponível. Sincronização pulada.');
+  }
+  print('==================== [FIM DA SINCRONIZAÇÃO] ====================');
+  
+
   // Instanciar Menus.
   MenuFirebase? menuFirebase; // ?null se a autenticação com o Firebase falha
   if (firebaseService != null) menuFirebase = MenuFirebase(firebaseService); // Cria o obj da classe MenuFirebase passando o firebaseService para o construtor da classe.
@@ -81,7 +93,7 @@ void main() async {
 
   // Loop do Menu Principal
   while (true) {
-    print('\n====== MENU PRINCIPAL ======');
+    print('\n================ MENU PRINCIPAL ==================');
     print('1  - Monitoramento das Leituras e Motor no Firebase');
     print('2  - Empresas');
     print('3  - Setores');
